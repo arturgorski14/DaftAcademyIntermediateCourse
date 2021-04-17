@@ -6,7 +6,7 @@ app.counter = 0
 
 
 class AppClass:
-    APP_URL="daft-academy-intermediate-2021.heroku.com"
+    APP_URL = "https://daft-academy-intermediate-2021.heroku.com"
 
 
 class HelloResp(BaseModel):
