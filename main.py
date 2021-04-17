@@ -57,4 +57,4 @@ async def options_method(request: Request):
 
 @app.get('/auth/{password}/{password_hash}')
 def auth(password: str='', password_hash: str=''):
-    return pass
+    pass
