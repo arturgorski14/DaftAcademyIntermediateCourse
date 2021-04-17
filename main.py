@@ -22,24 +22,24 @@ async def get_method(request: Request):
     return {'method': request.method}
 
 
-@app.post('/method/')
-async def post_method(request: Request):
+@app.post('/method/', status_code=201)
+async def get_method(request: Request):
     """Return dict with its request method name."""
     return {'method': request.method}
 
 
 @app.delete('/method/')
-async def delete_method(request: Request):
+async def get_method(request: Request):
     return {'method': request.method}
 
 
 @app.put('/method/')
-async def put_method(request: Request):
+async def get_method(request: Request):
     return {'method': request.method}
 
 
 @app.options('/method/')
-async def options_method(request: Request):
+async def get_method(request: Request):
     return {'method': request.method}
 
 

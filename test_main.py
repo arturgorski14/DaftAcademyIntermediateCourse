@@ -16,18 +16,18 @@ def test_method():
     assert response.status_code == 200
     assert response.json() == {'method': "GET"}
 
-    response = client.post(f"/method/post")
-    assert response.status_code == 307
-    # assert response.json() == {'method': "POST"}
+    response = client.post(f"/method/")
+    assert response.status_code == 201
+    assert response.json() == {'method': "POST"}
 
-    response = client.delete(f"/method/delete/3")
+    response = client.delete(f"/method/")
     assert response.status_code == 200
     assert response.json() == {'method': "DELETE"}
 
-    response = client.put(f"/method/update/3")
+    response = client.put(f"/method/")
     assert response.status_code == 200
     assert response.json() == {'method': "PUT"}
 
-    response = client.put(f"/method/options")
-    assert response.status_code == 307
-    # assert response.json() == {'options': "OPTIONS"}
+    response = client.options(f"/method/")
+    assert response.status_code == 200
+    assert response.json() == {'method': "OPTIONS"}
