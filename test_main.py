@@ -31,3 +31,8 @@ def test_method():
     response = client.options(f"/method/")
     assert response.status_code == 200
     assert response.json() == {'method': "OPTIONS"}
+
+
+def test_auth():
+    response = client.get("/auth/")
+    assert response.status_code == 401

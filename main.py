@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from pydantic import BaseModel
 from hashlib import sha512
 
@@ -43,7 +43,10 @@ async def get_method(request: Request):
     return {'method': request.method}
 
 
-@app.get('/auth/{password}/{password_hash}')
+@app.get('/auth/')
 def auth(password: str, password_hash: str, request: Request):
     """Check if provided password and password_hash match."""
-    pass
+    if sha512(password) == password_hash:
+        return _, status.HTTP_204_NO_CONTENT
+    else:
+        return _, status.HTTP_401_UNAUTHORIZED
