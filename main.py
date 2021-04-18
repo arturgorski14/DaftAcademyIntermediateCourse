@@ -1,14 +1,35 @@
 import hashlib
+import datetime
 
+from typing import Optional
 from fastapi import FastAPI, Request, Response, status
 from pydantic import BaseModel
 
-app = FastAPI()
-app.counter = 0
-
 
 class AppClass:
-    APP_URL = "https://daft-academy-intermediate-2021.heroku.com"
+    APP_URL = "https://daft-academy-intermediate-2021.herokuapp.com"
+
+
+app = FastAPI()
+patients = {}
+
+
+def next_patient_id(start):
+    num = start
+    while True:
+        yield num
+        num += 1
+
+
+gen_patient_id = next_patient_id(start=1)
+
+
+class Patient(BaseModel):
+    id: Optional[int] = 0
+    name: str
+    surname: str
+    register_date: Optional[str] = datetime.date.today().strftime("%Y-%m-%d")
+    vaccination_date: Optional[str] = datetime.date.today().strftime("%Y-%m-%d")
 
 
 @app.get("/")
@@ -17,34 +38,34 @@ async def root() -> dict:
     return {"message": "Hello World"}
 
 
-@app.get('/method/')
+@app.get('/method')
 async def get_method(request: Request):
     """Return dict with its request method name."""
     return {'method': request.method}
 
 
-@app.post('/method/', status_code=status.HTTP_201_CREATED)
+@app.post('/method', status_code=status.HTTP_201_CREATED)
 async def get_method(request: Request):
     """Return dict with its request method name."""
     return {'method': request.method}
 
 
-@app.delete('/method/')
+@app.delete('/method')
 async def get_method(request: Request):
     return {'method': request.method}
 
 
-@app.put('/method/')
+@app.put('/method')
 async def get_method(request: Request):
     return {'method': request.method}
 
 
-@app.options('/method/')
+@app.options('/method')
 async def get_method(request: Request):
     return {'method': request.method}
 
 
-@app.get('/auth/')
+@app.get('/auth')
 def auth(password: str, password_hash: str, response: Response):
     """Check if provided password and password_hash match."""
     h = hashlib.sha512(password.encode('utf-8'))
@@ -53,3 +74,21 @@ def auth(password: str, password_hash: str, response: Response):
         response.status_code = status.HTTP_204_NO_CONTENT
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
+
+
+@app.post('/register', status_code=status.HTTP_201_CREATED)
+def register(patient: Patient):
+
+    today_date = datetime.date.today()
+    vaccination_date = today_date + datetime.timedelta(len(patient.name) + len(patient.surname))
+
+    new_id = next(gen_patient_id)
+    patients[new_id] = Patient(
+        id=new_id,
+        name=patient.name,
+        surname=patient.surname,
+        register_date=today_date.strftime("%Y-%m-%d"),
+        vaccination_date=vaccination_date.strftime("%Y-%m-%d")
+    )
+
+    return patients[new_id]
