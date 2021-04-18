@@ -46,7 +46,22 @@ def test_auth(password: str, password_hash: str, expected_status_code: int):
     assert response.status_code == expected_status_code
 
 
-@pytest.mark.parametrize('name,surname', [('Jan', 'Nowak')])
-def test_register(name: str, surname: str):
-    response = client.post('/register', {"name": "Jan", "surname": "Nowak"})
+@pytest.mark.parametrize('name,surname,expected_id', [
+    ('Jan', 'Nowak', 1),
+    ('ąćęł', 'ńóśźż', 2),
+    ('1234', '', 3),
+    ('', 'Kowalski', 4),
+])
+def test_register(name: str, surname: str, expected_id: int):
+    response = client.post('/register', json={"name": name, "surname": surname})
     assert response.status_code == 201
+
+    register_date = datetime.date.today()
+    vaccination_date = register_date + datetime.timedelta(len(name) + len(surname))
+    assert response.json() == dict(
+        id=expected_id,
+        name=name,
+        surname=surname,
+        register_date=register_date.strftime("%Y-%m-%d"),
+        vaccination_date=vaccination_date.strftime("%Y-%m-%d")
+    )
