@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Request, status
+import hashlib
+
+from fastapi import FastAPI, Request, Response, status
 from pydantic import BaseModel
-from hashlib import sha512
 
 app = FastAPI()
 app.counter = 0
@@ -22,7 +23,7 @@ async def get_method(request: Request):
     return {'method': request.method}
 
 
-@app.post('/method/', status_code=201)
+@app.post('/method/', status_code=status.HTTP_201_CREATED)
 async def get_method(request: Request):
     """Return dict with its request method name."""
     return {'method': request.method}
@@ -44,9 +45,11 @@ async def get_method(request: Request):
 
 
 @app.get('/auth/')
-def auth(password: str, password_hash: str, request: Request):
+def auth(password: str, password_hash: str, response: Response):
     """Check if provided password and password_hash match."""
-    if sha512(password) == password_hash:
-        return _, status.HTTP_204_NO_CONTENT
+    h = hashlib.sha512(password.encode('utf-8'))
+
+    if h.hexdigest() == password_hash:
+        response.status_code = status.HTTP_204_NO_CONTENT
     else:
-        return _, status.HTTP_401_UNAUTHORIZED
+        response.status_code = status.HTTP_401_UNAUTHORIZED
