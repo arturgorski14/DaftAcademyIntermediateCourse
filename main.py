@@ -92,3 +92,16 @@ def register(patient: Patient):
     )
 
     return patients[new_id]
+
+
+@app.get('/patient/{pid}')
+def get_patient(pid: int, response: Response):
+
+    if pid < 1:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+
+    elif pid in patients:
+        return patients[pid]
+
+    else:
+        response.status_code = status.HTTP_404_NOT_FOUND

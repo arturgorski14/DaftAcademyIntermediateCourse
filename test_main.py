@@ -65,3 +65,17 @@ def test_register(name: str, surname: str, expected_id: int):
         register_date=register_date.strftime("%Y-%m-%d"),
         vaccination_date=vaccination_date.strftime("%Y-%m-%d")
     )
+
+
+@pytest.mark.parametrize('pid,expected_status_code', [
+    (1, 200),
+    (2, 200),
+    (3, 200),
+    (4, 200),
+    (10000000, 404),
+    (-1, 400),
+    (0, 400),
+])
+def test_get_patient(pid: int, expected_status_code: int):
+    response = client.get(f'/patient/{pid}')
+    assert response.status_code == expected_status_code
