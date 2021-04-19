@@ -1,10 +1,11 @@
-import hashlib
 import datetime
-
+import hashlib
 from typing import Optional
+
 from fastapi import FastAPI, Request, Response, status
 from pydantic import BaseModel
 
+from utils import letter_count_in_word
 
 app = FastAPI()
 patients = {}
@@ -74,7 +75,8 @@ async def auth(password: str, password_hash: str, response: Response):
 async def register(patient: Patient):
 
     today_date = datetime.date.today()
-    vaccination_date = today_date + datetime.timedelta(len(patient.name) + len(patient.surname))
+    vaccination_date = today_date + datetime.timedelta(
+        letter_count_in_word(patient.name) + letter_count_in_word(patient.surname))
 
     new_id = next(gen_patient_id)
     patients[new_id] = Patient(

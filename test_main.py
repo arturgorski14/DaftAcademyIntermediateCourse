@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 import pytest
 from main import app
 import datetime
+from utils import letter_count_in_word
 
 client = TestClient(app)
 
@@ -60,7 +61,8 @@ def test_register(name: str, surname: str, expected_id: int):
     assert response.status_code == 201
 
     register_date = datetime.date.today()
-    vaccination_date = register_date + datetime.timedelta(len(name) + len(surname))
+    vaccination_date = register_date + datetime.timedelta(
+        letter_count_in_word(name) + letter_count_in_word(surname))
     assert response.json() == dict(
         id=expected_id,
         name=name,
