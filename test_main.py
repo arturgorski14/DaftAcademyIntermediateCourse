@@ -12,6 +12,7 @@ def test_root():
     assert response.json() == {'message': 'Hello World'}
 
 
+@pytest.mark.skip('Temporary disabled')
 @pytest.mark.parametrize('endpoint', ['/method'])
 def test_method(endpoint: str):
     response = client.get(endpoint)
@@ -35,6 +36,7 @@ def test_method(endpoint: str):
     assert response.json() == {'method': "OPTIONS"}
 
 
+@pytest.mark.skip('Temporary disabled')
 @pytest.mark.parametrize('password,password_hash,expected_status_code', [
     ('test', 'test_hash', 401),
     ('abc', 'ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f', 204),
@@ -46,6 +48,7 @@ def test_auth(password: str, password_hash: str, expected_status_code: int):
     assert response.status_code == expected_status_code
 
 
+@pytest.mark.skip('Temporary disabled')
 @pytest.mark.parametrize('name,surname,expected_id', [
     ('Jan', 'Nowak', 1),
     ('ąćęł', 'ńóśźż', 2),
@@ -67,6 +70,7 @@ def test_register(name: str, surname: str, expected_id: int):
     )
 
 
+@pytest.mark.skip('Temporary disabled')
 @pytest.mark.parametrize('pid,expected_status_code', [
     (1, 200),
     (2, 200),

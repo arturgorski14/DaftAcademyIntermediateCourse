@@ -38,70 +38,70 @@ async def root() -> dict:
     return {"message": "Hello World"}
 
 
-@app.get('/method')
-async def get_method(request: Request):
-    """Return dict with its request method name."""
-    return {'method': request.method}
-
-
-@app.post('/method', status_code=status.HTTP_201_CREATED)
-async def get_method(request: Request):
-    """Return dict with its request method name."""
-    return {'method': request.method}
-
-
-@app.delete('/method')
-async def get_method(request: Request):
-    return {'method': request.method}
-
-
-@app.put('/method')
-async def get_method(request: Request):
-    return {'method': request.method}
-
-
-@app.options('/method')
-async def get_method(request: Request):
-    return {'method': request.method}
-
-
-@app.get('/auth')
-def auth(password: str, password_hash: str, response: Response):
-    """Check if provided password and password_hash match."""
-    h = hashlib.sha512(password.encode('utf-8'))
-
-    if h.hexdigest() == password_hash:
-        response.status_code = status.HTTP_204_NO_CONTENT
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-
-
-@app.post('/register', status_code=status.HTTP_201_CREATED)
-def register(patient: Patient):
-
-    today_date = datetime.date.today()
-    vaccination_date = today_date + datetime.timedelta(len(patient.name) + len(patient.surname))
-
-    new_id = next(gen_patient_id)
-    patients[new_id] = Patient(
-        id=new_id,
-        name=patient.name,
-        surname=patient.surname,
-        register_date=today_date.strftime("%Y-%m-%d"),
-        vaccination_date=vaccination_date.strftime("%Y-%m-%d")
-    )
-
-    return patients[new_id]
-
-
-@app.get('/patient/{pid}')
-def get_patient(pid: int, response: Response):
-
-    if pid < 1:
-        response.status_code = status.HTTP_400_BAD_REQUEST
-
-    elif pid in patients:
-        return patients[pid]
-
-    else:
-        response.status_code = status.HTTP_404_NOT_FOUND
+# @app.get('/method')
+# async def get_method(request: Request):
+#     """Return dict with its request method name."""
+#     return {'method': request.method}
+#
+#
+# @app.post('/method', status_code=status.HTTP_201_CREATED)
+# async def get_method(request: Request):
+#     """Return dict with its request method name."""
+#     return {'method': request.method}
+#
+#
+# @app.delete('/method')
+# async def get_method(request: Request):
+#     return {'method': request.method}
+#
+#
+# @app.put('/method')
+# async def get_method(request: Request):
+#     return {'method': request.method}
+#
+#
+# @app.options('/method')
+# async def get_method(request: Request):
+#     return {'method': request.method}
+#
+#
+# @app.get('/auth')
+# def auth(password: str, password_hash: str, response: Response):
+#     """Check if provided password and password_hash match."""
+#     h = hashlib.sha512(password.encode('utf-8'))
+#
+#     if h.hexdigest() == password_hash:
+#         response.status_code = status.HTTP_204_NO_CONTENT
+#     else:
+#         response.status_code = status.HTTP_401_UNAUTHORIZED
+#
+#
+# @app.post('/register', status_code=status.HTTP_201_CREATED)
+# def register(patient: Patient):
+#
+#     today_date = datetime.date.today()
+#     vaccination_date = today_date + datetime.timedelta(len(patient.name) + len(patient.surname))
+#
+#     new_id = next(gen_patient_id)
+#     patients[new_id] = Patient(
+#         id=new_id,
+#         name=patient.name,
+#         surname=patient.surname,
+#         register_date=today_date.strftime("%Y-%m-%d"),
+#         vaccination_date=vaccination_date.strftime("%Y-%m-%d")
+#     )
+#
+#     return patients[new_id]
+#
+#
+# @app.get('/patient/{pid}')
+# def get_patient(pid: int, response: Response):
+#
+#     if pid < 1:
+#         response.status_code = status.HTTP_400_BAD_REQUEST
+#
+#     elif pid in patients:
+#         return patients[pid]
+#
+#     else:
+#         response.status_code = status.HTTP_404_NOT_FOUND
