@@ -9,7 +9,7 @@ client = TestClient(app)
 def test_root():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {'message': 'Hello World'}
+    assert response.json() == {'message': 'Hello world!'}
 
 
 @pytest.mark.parametrize('endpoint', ['/method'])
@@ -36,6 +36,8 @@ def test_method(endpoint: str):
 
 
 @pytest.mark.parametrize('password,password_hash,expected_status_code', [
+    ('', 'cokolwiek', 401),
+    ('cokolwiek', '', 401),
     ('test', 'test_hash', 401),
     ('abc', 'ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f', 204),
     ('haslo', '013c6889f799cd986a735118e1888727d1435f7f623d05d58c61bf2cd8b49ac90105e5786ceaabd62bbc27336153d0d316b2d13b36804080c44aa6198c533215', 204),
