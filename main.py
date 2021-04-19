@@ -71,15 +71,15 @@ async def auth(password: str, password_hash: str, response: Response):
             response.status_code = status.HTTP_204_NO_CONTENT
 
 
-@app.post('/register', status_code=status.HTTP_201_CREATED)
-async def register(patient: Patient):
+@app.post('/register')
+async def register(patient: Patient, response: Response):
 
     today_date = datetime.date.today()
     vaccination_date = today_date + datetime.timedelta(
         letter_count_in_word(patient.name) + letter_count_in_word(patient.surname))
 
     new_id = next(gen_patient_id)
-    patients[new_id] = Patient(
+    patient = Patient(
         id=new_id,
         name=patient.name,
         surname=patient.surname,
@@ -87,6 +87,8 @@ async def register(patient: Patient):
         vaccination_date=vaccination_date.strftime("%Y-%m-%d")
     )
 
+    patients[new_id] = patient
+    response.status_code = status.HTTP_201_CREATED
     return patients[new_id]
 
 

@@ -38,6 +38,7 @@ def test_method(endpoint: str):
 
 @pytest.mark.parametrize('password,password_hash,expected_status_code', [
     ('', 'cokolwiek', 401),
+    ('', '', 401),
     ('cokolwiek', '', 401),
     ('test', 'test_hash', 401),
     ('abc', 'ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f', 204),
@@ -74,9 +75,8 @@ def test_register(name: str, surname: str, expected_id: int):
 
 @pytest.mark.parametrize('pid,expected_status_code', [
     (1, 200),
-    (2, 200),
-    (3, 200),
-    (4, 200),
+    (5, 200),
+    (6, 404),
     (10000000, 404),
     (-1, 400),
     (0, 400),
