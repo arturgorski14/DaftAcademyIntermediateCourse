@@ -61,18 +61,13 @@ async def get_method(request: Request):
     return {'method': request.method}
 
 
-@app.get('/auth')
+@app.get('/auth', status_code=status.HTTP_401_UNAUTHORIZED)
 async def auth(password: str, password_hash: str, response: Response):
     """Check if provided password and password_hash match."""
-    if password == '' or password_hash == '':
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-
-    h = hashlib.sha512(password.encode('utf-8'))
-
-    if h.hexdigest() == password_hash:
-        response.status_code = status.HTTP_204_NO_CONTENT
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
+    if password != '' and password_hash != '':
+        h = hashlib.sha512(password.encode('utf-8'))
+        if h.hexdigest() == password_hash:
+            response.status_code = status.HTTP_204_NO_CONTENT
 
 
 @app.post('/register', status_code=status.HTTP_201_CREATED)

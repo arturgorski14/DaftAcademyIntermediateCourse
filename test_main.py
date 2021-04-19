@@ -53,6 +53,7 @@ def test_auth(password: str, password_hash: str, expected_status_code: int):
     ('ąćęł', 'ńóśźż', 2),
     ('1234', '', 3),
     ('', 'Kowalski', 4),
+    ('1234', 'Kowalski', 5),
 ])
 def test_register(name: str, surname: str, expected_id: int):
     response = client.post('/register', json={"name": name, "surname": surname})
