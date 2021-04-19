@@ -33,7 +33,7 @@ class Patient(BaseModel):
 
 
 @app.get("/")
-async def root() -> dict:
+def root() -> dict:
     """Return dict with HelloWorld message."""
     return {"message": "Hello World"}
 
