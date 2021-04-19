@@ -6,8 +6,8 @@ from fastapi import FastAPI, Request, Response, status
 from pydantic import BaseModel
 
 
-# class AppClass:
-#     APP_URL = "https://daft-academy-intermediate-2021.herokuapp.com"
+class AppClass:
+    APP_URL = "https://daft-academy-intermediate-2021.herokuapp.com"
 
 
 app = FastAPI()
