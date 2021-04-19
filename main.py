@@ -6,10 +6,6 @@ from fastapi import FastAPI, Request, Response, status
 from pydantic import BaseModel
 
 
-class AppClass:
-    APP_URL = "https://daft-academy-intermediate-2021.herokuapp.com"
-
-
 app = FastAPI()
 patients = {}
 
@@ -35,7 +31,7 @@ class Patient(BaseModel):
 @app.get("/")
 async def root() -> dict:
     """Return dict with HelloWorld message."""
-    return {"message": "Hello world"}
+    return {"message": "Hello world!"}
 
 
 @app.get('/method')
