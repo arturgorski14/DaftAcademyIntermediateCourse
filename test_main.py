@@ -93,3 +93,7 @@ def test_get_patient(pid: int, expected_status_code: int, name: str, surname: st
         assert response.json()['name'] == name
         assert response.json()['surname'] == surname
 
+
+
+
+

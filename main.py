@@ -105,3 +105,8 @@ async def get_patient(pid: int, response: Response):
         return patients[pid]
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
+
+
+@app.get('/patient_dict')
+async def get_patient_dict():
+    return patients
