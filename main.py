@@ -2,7 +2,7 @@ import datetime
 import hashlib
 from fastapi import FastAPI, Request, Response, status
 from utils import letter_count_in_word, next_patient_id
-from models import Patient, PatientAPI
+from models.Patient import Patient, PatientAPI
 
 app = FastAPI()
 patients = {}  # list would be good too
@@ -57,7 +57,7 @@ async def register(patient: PatientAPI, response: Response):
 
 @app.get('/patient/{pid}')
 async def get_patient(pid: int, response: Response):
-    """Get patient with passed it"""
+    """Get patient with passed id"""
     if pid < 1:
         response.status_code = status.HTTP_400_BAD_REQUEST
     elif pid in patients:
