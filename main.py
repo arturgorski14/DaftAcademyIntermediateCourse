@@ -57,7 +57,7 @@ async def register(patient: PatientAPI, response: Response):
 
 @app.get('/patient/{pid}')
 async def get_patient(pid: int, response: Response):
-
+    """Get patient with passed it"""
     if pid < 1:
         response.status_code = status.HTTP_400_BAD_REQUEST
     elif pid in patients:
