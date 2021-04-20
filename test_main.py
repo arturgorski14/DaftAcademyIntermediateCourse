@@ -56,6 +56,7 @@ def test_auth(password: str, password_hash: str, expected_status_code: int):
     ('Marian Mario', '', 3),
     ('', 'Kowalski Sochoń', 4),
     ('1234', 'Kowalski', 5),
+    # ('Jan', 'Sebastian', 6)
 ])
 def test_register(name: str, surname: str, expected_id: int):
     response = client.post('/register', json={"name": name, "surname": surname})
@@ -77,7 +78,8 @@ def test_register(name: str, surname: str, expected_id: int):
     (1, 200, 'Jan', 'Nowak'),
     (3, 200, 'Marian Mario', ''),
     (4, 200, '', 'Kowalski Sochoń'),
-    (6, 404, '', ''),
+    # (6, 200, 'Jan Sebastian', ''),
+    (7, 404, '', ''),
     (10000000, 404, '', ''),
     (-1, 400, '', ''),
     (0, 400, '', ''),

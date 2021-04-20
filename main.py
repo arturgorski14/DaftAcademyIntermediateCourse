@@ -21,10 +21,13 @@ def next_patient_id(start):
 gen_patient_id = next_patient_id(start=1)
 
 
-class Patient(BaseModel):
-    id: Optional[int] = 0
+class PatientAPI(BaseModel):
     name: str
     surname: str
+
+
+class Patient(PatientAPI):
+    id: Optional[int] = 0
     register_date: Optional[str] = datetime.date.today().strftime("%Y-%m-%d")
     vaccination_date: Optional[str] = datetime.date.today().strftime("%Y-%m-%d")
 
@@ -72,7 +75,7 @@ async def auth(response: Response, password: str = '', password_hash: str = ''):
 
 
 @app.post('/register')
-async def register(patient: Patient, response: Response):
+async def register(patient: PatientAPI, response: Response):
 
     today_date = datetime.date.today()
     vaccination_date = today_date + datetime.timedelta(
