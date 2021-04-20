@@ -53,8 +53,8 @@ def test_auth(password: str, password_hash: str, expected_status_code: int):
 @pytest.mark.parametrize('name,surname,expected_id', [
     ('Jan', 'Nowak', 1),
     ('ąćęł', 'ńóśźż', 2),
-    ('1234', '', 3),
-    ('', 'Kowalski', 4),
+    ('Marian Mario', '', 3),
+    ('', 'Kowalski Sochoń', 4),
     ('1234', 'Kowalski', 5),
 ])
 def test_register(name: str, surname: str, expected_id: int):
@@ -73,14 +73,19 @@ def test_register(name: str, surname: str, expected_id: int):
     )
 
 
-@pytest.mark.parametrize('pid,expected_status_code', [
-    (1, 200),
-    (5, 200),
-    (6, 404),
-    (10000000, 404),
-    (-1, 400),
-    (0, 400),
+@pytest.mark.parametrize('pid,expected_status_code,name,surname', [
+    (1, 200, 'Jan', 'Nowak'),
+    (3, 200, 'Marian Mario', ''),
+    (4, 200, '', 'Kowalski Sochoń'),
+    (6, 404, '', ''),
+    (10000000, 404, '', ''),
+    (-1, 400, '', ''),
+    (0, 400, '', ''),
 ])
-def test_get_patient(pid: int, expected_status_code: int):
+def test_get_patient(pid: int, expected_status_code: int, name: str, surname: str):
     response = client.get(f'/patient/{pid}')
     assert response.status_code == expected_status_code
+    if response.status_code == 200:
+        assert response.json()['name'] == name
+        assert response.json()['surname'] == surname
+
