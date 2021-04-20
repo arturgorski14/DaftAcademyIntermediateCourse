@@ -63,7 +63,7 @@ async def get_method(request: Request):
 
 
 @app.get('/auth', status_code=status.HTTP_401_UNAUTHORIZED)
-async def auth(password: str, password_hash: str, response: Response):
+async def auth(response: Response, password: str = '', password_hash: str = ''):
     """Check if provided password and password_hash match."""
     if password != '' and password_hash != '':
         h = hashlib.sha512(password.encode('utf-8'))
@@ -97,9 +97,8 @@ async def get_patient(pid: int, response: Response):
 
     if pid < 1:
         response.status_code = status.HTTP_400_BAD_REQUEST
-
     elif pid in patients:
+        response.status_code = status.HTTP_200_OK
         return patients[pid]
-
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
