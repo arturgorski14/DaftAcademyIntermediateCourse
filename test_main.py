@@ -13,27 +13,17 @@ def test_root():
     assert response.json() == {'message': 'Hello world!'}
 
 
-@pytest.mark.parametrize('endpoint', ['/method'])
-def test_method(endpoint: str):
-    response = client.get(endpoint)
-    assert response.status_code == 200
-    assert response.json() == {'method': "GET"}  # 'method' is left for clarity
-
-    response = client.post(endpoint)
-    assert response.status_code == 201
-    assert response.json() == {'method': "POST"}
-
-    response = client.delete(endpoint)
-    assert response.status_code == 200
-    assert response.json() == {'method': "DELETE"}
-
-    response = client.put(endpoint)
-    assert response.status_code == 200
-    assert response.json() == {'method': "PUT"}
-
-    response = client.options(endpoint)
-    assert response.status_code == 200
-    assert response.json() == {'method': "OPTIONS"}
+@pytest.mark.parametrize('method,expected_status_code,method_type', [
+    (client.get('/method'), 200, 'GET'),
+    (client.post('/method'), 201, 'POST'),
+    (client.delete('/method'), 200, 'DELETE'),
+    (client.put('/method'), 200, 'PUT'),
+    (client.options('/method'), 200, 'OPTIONS')
+])
+def test_method(method: str, expected_status_code: int, method_type: str):
+    response = method
+    assert response.status_code == expected_status_code
+    assert response.json() == {'method': method_type}
 
 
 @pytest.mark.parametrize('password,password_hash,expected_status_code', [
@@ -55,7 +45,7 @@ def test_auth(password: str, password_hash: str, expected_status_code: int):
     ('ąćęł', 'ńóśźż', 2),
     ('Marian Mario', '', 3),
     ('', 'Kowalski Sochoń', 4),
-    ('1234', 'Kowalski', 5),
+    ('!@#$%^&*()1234567890', 'Kowalski', 5),
     ('Jan Sebastian', 'Bach', 6),
     ('Jan', '!@#$%^&*()1234567890', 7)
 ])
