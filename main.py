@@ -1,35 +1,12 @@
 import datetime
 import hashlib
-from typing import Optional
-
 from fastapi import FastAPI, Request, Response, status
-from pydantic import BaseModel
-
-from utils import letter_count_in_word
+from utils import letter_count_in_word, next_patient_id
+from models import Patient, PatientAPI
 
 app = FastAPI()
-patients = {}
-
-
-def next_patient_id(start):
-    num = start
-    while True:
-        yield num
-        num += 1
-
-
+patients = {}  # list would be good too
 gen_patient_id = next_patient_id(start=1)
-
-
-class PatientAPI(BaseModel):
-    name: str
-    surname: str
-
-
-class Patient(PatientAPI):
-    id: Optional[int] = 0
-    register_date: Optional[str] = datetime.date.today().strftime("%Y-%m-%d")
-    vaccination_date: Optional[str] = datetime.date.today().strftime("%Y-%m-%d")
 
 
 @app.get("/")
@@ -39,35 +16,18 @@ async def root() -> dict:
 
 
 @app.get('/method')
-async def get_method(request: Request):
-    """Return dict with its request method name."""
-    return {'method': request.method}
-
-
 @app.post('/method', status_code=status.HTTP_201_CREATED)
-async def get_method(request: Request):
-    """Return dict with its request method name."""
-    return {'method': request.method}
-
-
 @app.delete('/method')
-async def get_method(request: Request):
-    return {'method': request.method}
-
-
 @app.put('/method')
-async def get_method(request: Request):
-    return {'method': request.method}
-
-
 @app.options('/method')
 async def get_method(request: Request):
+    """Return dict with its request method name."""
     return {'method': request.method}
 
 
 @app.get('/auth', status_code=status.HTTP_401_UNAUTHORIZED)
 async def auth(response: Response, password: str = '', password_hash: str = ''):
-    """Check if provided password and password_hash match."""
+    """Check whether provided password and password_hash match."""
     if password != '' and password_hash != '':
         h = hashlib.sha512(password.encode('utf-8'))
         if h.hexdigest() == password_hash:
@@ -76,13 +36,14 @@ async def auth(response: Response, password: str = '', password_hash: str = ''):
 
 @app.post('/register')
 async def register(patient: PatientAPI, response: Response):
+    """Insert patient into dictionary; generate id and dates; returns saved object."""
 
     today_date = datetime.date.today()
     vaccination_date = today_date + datetime.timedelta(
         letter_count_in_word(patient.name) + letter_count_in_word(patient.surname))
 
     new_id = next(gen_patient_id)
-    patient = Patient(
+    patients[new_id] = Patient(
         id=new_id,
         name=patient.name,
         surname=patient.surname,
@@ -90,7 +51,6 @@ async def register(patient: PatientAPI, response: Response):
         vaccination_date=vaccination_date.strftime("%Y-%m-%d")
     )
 
-    patients[new_id] = patient
     response.status_code = status.HTTP_201_CREATED
     return patients[new_id]
 
@@ -105,8 +65,3 @@ async def get_patient(pid: int, response: Response):
         return patients[pid]
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
-
-
-@app.get('/patient_dict')
-async def get_patient_dict():
-    return patients

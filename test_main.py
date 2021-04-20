@@ -1,8 +1,7 @@
 from fastapi.testclient import TestClient
 import pytest
-from main import app
+from main import app, letter_count_in_word
 import datetime
-from utils import letter_count_in_word
 
 client = TestClient(app)
 
@@ -20,7 +19,7 @@ def test_root():
     (client.put('/method'), 200, 'PUT'),
     (client.options('/method'), 200, 'OPTIONS')
 ])
-def test_method(method: str, expected_status_code: int, method_type: str):
+def test_method(method, expected_status_code: int, method_type: str):
     response = method
     assert response.status_code == expected_status_code
     assert response.json() == {'method': method_type}
@@ -82,8 +81,3 @@ def test_get_patient(pid: int, expected_status_code: int, name: str, surname: st
     if response.status_code == 200:
         assert response.json()['name'] == name
         assert response.json()['surname'] == surname
-
-
-
-
-
