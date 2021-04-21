@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 import pytest
-from main import app, letter_count_in_word
-import datetime
+from main import app
+from models import Patient
 
 client = TestClient(app)
 
@@ -50,17 +50,9 @@ class TestDJakDeploy:
     def test_register(self, name: str, surname: str, expected_id: int):
         response = client.post('/register', json={"name": name, "surname": surname})
         assert response.status_code == 201
-
-        register_date = datetime.date.today()
-        vaccination_date = register_date + datetime.timedelta(
-            letter_count_in_word(name) + letter_count_in_word(surname))
-        assert response.json() == dict(
-            id=expected_id,
-            name=name,
-            surname=surname,
-            register_date=register_date.strftime("%Y-%m-%d"),
-            vaccination_date=vaccination_date.strftime("%Y-%m-%d")
-        )
+        resp = response.json()
+        assert resp.pop('name') == name
+        assert resp.pop('surname') == surname
 
     @pytest.mark.parametrize('pid,expected_status_code,name,surname', [
         (1, 200, 'Jan', 'Nowak'),
@@ -77,5 +69,7 @@ class TestDJakDeploy:
         response = client.get(f'/patient/{pid}')
         assert response.status_code == expected_status_code
         if response.status_code == 200:
-            assert response.json()['name'] == name
-            assert response.json()['surname'] == surname
+            resp = response.json()
+            assert resp.pop('id') == pid
+            assert resp.pop('name') == name
+            assert resp.pop('surname') == surname
