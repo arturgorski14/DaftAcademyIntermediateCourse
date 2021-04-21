@@ -2,6 +2,7 @@ import hashlib
 from fastapi import FastAPI, Request, Response, status, HTTPException
 from models.Patient import Patient
 from typing import Dict
+from decorators import greetings
 
 app = FastAPI()
 
@@ -11,7 +12,7 @@ app.storage: Dict[int, Patient] = {}
 
 
 @app.get("/")
-async def root() -> dict:
+async def root() -> Dict:
     """Return dict with HelloWorld message."""
     return {"message": "Hello world!"}
 
@@ -19,7 +20,7 @@ async def root() -> dict:
 @app.api_route(
     path="/method", methods=["GET", "POST", "DELETE", "PUT", "OPTIONS"], status_code=200
 )
-def read_request(request: Request, response: Response):
+def read_request(request: Request, response: Response) -> Dict:
     """Return dict with key 'method' and value its HTTP name."""
     request_method = request.method
 
@@ -30,7 +31,7 @@ def read_request(request: Request, response: Response):
 
 
 @app.get('/auth')
-async def auth(password: str = '', password_hash: str = ''):
+async def auth(password: str = '', password_hash: str = '') -> Response:
     """Check whether provided password and password_hash match; if so returns 204, otherwise 401."""
     authorized = False
     if password and password_hash:
@@ -44,7 +45,7 @@ async def auth(password: str = '', password_hash: str = ''):
 
 
 @app.post('/register', status_code=201)  # technically a POST but it also returns an item
-async def create_patient(patient: Patient):
+async def create_patient(patient: Patient) -> Patient:
     """Insert patient into dictionary; generate id and dates; returns saved object."""
     patient.id = app.counter
     app.storage[app.counter] = patient
@@ -53,7 +54,7 @@ async def create_patient(patient: Patient):
 
 
 @app.get("/patient/{patient_id}")
-async def show_patient(patient_id: int):
+async def show_patient(patient_id: int) -> Patient:
     """Get patient with passed id"""
     if patient_id < 1:
         raise HTTPException(status_code=400, detail="Invalid patient id")
@@ -64,3 +65,6 @@ async def show_patient(patient_id: int):
     return app.storage[patient_id]
 
 # ----------------------------- 2_A_jak_art -----------------------------
+@greetings
+def get_names_surname(names_surname: str) -> str:
+    return names_surname
