@@ -2,7 +2,7 @@ import hashlib
 from fastapi import FastAPI, Request, Response, status, HTTPException
 from models.Patient import Patient
 from typing import Dict
-from decorators import greetings
+from decorators import greetings, is_palindrome
 
 app = FastAPI()
 
@@ -68,3 +68,8 @@ async def show_patient(patient_id: int) -> Patient:
 @greetings
 def get_names_surname(names_surname: str) -> str:
     return names_surname
+
+
+@is_palindrome
+def sentence(text: str) -> str:
+    return text
