@@ -11,6 +11,6 @@ def greetings(function_to_greet):
 def is_palindrome(func_to_decorate):
     def inner(arg):
         orig = func_to_decorate(arg)
-        val = ''.join(re.findall('[a-zA-Z0-9]+', orig))
+        val = (''.join(re.findall('[a-zA-Z0-9]+', orig))).lower()
         return f'{orig} - is {"" if val==val[::-1] else "not "}palindrome'
     return inner
