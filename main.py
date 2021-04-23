@@ -2,7 +2,7 @@ import hashlib
 from fastapi import FastAPI, Request, Response, status, HTTPException
 from models.Patient import Patient
 from typing import Dict
-from decorators import greetings, is_palindrome
+from decorators import greetings, is_palindrome, format_output
 
 app = FastAPI()
 
@@ -73,3 +73,21 @@ def get_names_surname(names_surname: str) -> str:
 @is_palindrome
 def sentence(text: str) -> str:
     return text
+
+
+@format_output("first_name__last_name", "city")
+def first_func(*args):
+    return {
+        "first_name": "Jan",
+        "last_name": "Kowalski",
+        "city": "Warsaw"
+    }
+
+
+@format_output("first_name", "age")
+def second_func(*args):
+    return {
+        "first_name": "Jan",
+        "last_name": "Kowalski",
+        "city": "Warsaw"
+    }

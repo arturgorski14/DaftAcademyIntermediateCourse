@@ -1,5 +1,6 @@
 import pytest
-from main import get_names_surname, sentence
+from main import get_names_surname, sentence, first_func, second_func
+from typing import Dict
 
 
 @pytest.mark.parametrize('names_surname', [
@@ -21,3 +22,10 @@ def test_greetings(names_surname: str):
 def test_is_palindrome(text: str, is_pal: int):
     is_or_not_palindrome = ' - is palindrome' if is_pal else ' - is not palindrome'
     assert f'{text}{is_or_not_palindrome}' == sentence(text)
+
+
+def test_format_output():
+    assert {"first_name__last_name": "Jan Kowalski", "city": "Warsaw"} == first_func('1')
+    assert second_func('1') == {}
+    with pytest.raises(ValueError):
+        second_func('1')
