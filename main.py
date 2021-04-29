@@ -1,6 +1,8 @@
 import datetime
 import hashlib
 from fastapi import FastAPI, Request, Response, status, HTTPException
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from models.Patient import Patient
 from typing import Dict
@@ -76,3 +78,22 @@ async def hello_today_date(response: Response, request: Request):
         'response': response,
         'today_date': datetime.date.today()
     })
+
+
+@app.post('/login_session')
+async def login_session(response: Response, login: str = '', password: str = ''):
+    if login == '4dm1n' and password == 'NotSoSecurePa$$':
+        response.status_code = status.HTTP_201_CREATED
+        response.set_cookie(key='session_token', value='session_token_value')
+    else:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+
+
+@app.post('/login_token')
+async def login_token(response: Response, login: str = '', password: str = ''):
+    if login == '4dm1n' and password == 'NotSoSecurePa$$':
+        response.headers['Content-Type'] = 'application/json; charset=UTF-8'
+        json_compatible_item_data = jsonable_encoder({'token': 'token_value'})
+        return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_201_CREATED)
+    else:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
