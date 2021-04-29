@@ -1,10 +1,13 @@
+import datetime
 import hashlib
 from fastapi import FastAPI, Request, Response, status, HTTPException
+from fastapi.templating import Jinja2Templates
 from models.Patient import Patient
 from typing import Dict
-from decorators import greetings
+
 
 app = FastAPI()
+templates = Jinja2Templates(directory='templates')
 
 # ----------------------------- 1_D_jak_deploy -----------------------------
 app.counter: int = 1
@@ -20,7 +23,6 @@ async def root() -> Dict:
 @app.api_route(
     path="/method", methods=["GET", "POST", "DELETE", "PUT", "OPTIONS"], status_code=200
 )
-
 async def read_request(request: Request, response: Response) -> Dict:
     """Return dict with key 'method' and value its HTTP name."""
     request_method = request.method
@@ -66,4 +68,11 @@ async def show_patient(patient_id: int) -> Patient:
     return app.storage[patient_id]
 
 # ----------------------------- 3_F_jak_Fast -----------------------------
-
+@app.get('/hello')
+async def hello_today_date(response: Response, request: Request):
+    response.headers["Content-Type"] = 'text/html; charset=UTF-8'
+    return templates.TemplateResponse('hello_today_date.html', {
+        'request': request,
+        'response': response,
+        'today_date': datetime.date.today()
+    })
