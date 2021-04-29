@@ -20,7 +20,8 @@ async def root() -> Dict:
 @app.api_route(
     path="/method", methods=["GET", "POST", "DELETE", "PUT", "OPTIONS"], status_code=200
 )
-def read_request(request: Request, response: Response) -> Dict:
+
+async def read_request(request: Request, response: Response) -> Dict:
     """Return dict with key 'method' and value its HTTP name."""
     request_method = request.method
 
@@ -64,7 +65,5 @@ async def show_patient(patient_id: int) -> Patient:
 
     return app.storage[patient_id]
 
-# ----------------------------- 2_A_jak_art -----------------------------
-@greetings
-def get_names_surname(names_surname: str) -> str:
-    return names_surname
+# ----------------------------- 3_F_jak_Fast -----------------------------
+
