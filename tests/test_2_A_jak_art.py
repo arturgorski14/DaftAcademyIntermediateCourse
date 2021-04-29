@@ -1,11 +1,11 @@
 import pytest
-from utils.decorators import get_names_surname, sentence, first_func, second_func, cls_method, add_instance_method, ExampleClass
-from utils.decorators_impl import add_class_method, add_instance_method
+from utils.decorators import get_names_surname, sentence, first_func, second_func, ExampleClass
 
 
 @pytest.mark.parametrize('names_surname', [
     'hello', 'janko janeczko', 'ed edd eddy', '1234', 'anna kowalska', 'janek kos', 'jan sebastian bach'
 ])
+
 def test_greetings(names_surname: str) -> None:
     assert f'Hello {names_surname.title()}' == get_names_surname(names_surname)
 
