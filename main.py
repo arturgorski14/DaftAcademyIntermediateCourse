@@ -104,3 +104,15 @@ async def login_token(response: Response, credentials: HTTPBasicCredentials = De
     response.headers['Content-Type'] = 'application/json; charset=UTF-8'
     json_compatible_item_data = jsonable_encoder({'token': app.token})
     return JSONResponse(content=json_compatible_item_data, status_code=response.status_code)
+
+
+@app.get('/welcome_session')
+async def welcome_session(format: str = ''):
+    json_compatible_item_data = jsonable_encoder({'message': 'Proszę opisujcie te zadania lepiej, bo idzie dostać raka'})
+    return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_100_CONTINUE)
+
+
+@app.get('/welcome_token')
+async def welcome_token(token: str = '', format: str = ''):
+    json_compatible_item_data = jsonable_encoder({'message': 'Proszę opisujcie te zadania lepiej, bo idzie dostać raka'})
+    return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_100_CONTINUE)
