@@ -17,7 +17,7 @@ templates = Jinja2Templates(directory='templates')
 # ----------------------------- session variables -----------------------------
 app.counter: int = 1
 app.storage: Dict[int, Patient] = {}
-app.secret_key: str = 'B9BB2B844D23372A5CEF5F5C1DEC7'
+app.token: str = 'B9BB2B844D23372A5CEF5F5C1DEC7'
 
 # ----------------------------- 1_D_jak_deploy -----------------------------
 @app.get("/")
@@ -95,14 +95,12 @@ def check_credentials(credentials: HTTPBasicCredentials):
 async def login_session(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     check_credentials(credentials)
     response.status_code = status.HTTP_201_CREATED
-    response.set_cookie('session_token', 'eyJhbGciOiJIUzI1NiIsIndQssw5c')
+    response.set_cookie('session_token', app.token)
 
 
 @app.post('/login_token')
-async def login_token(response: Response, login: str = '', password: str = '', session_token: str = Cookie(None)):
-    if login == '4dm1n' and password == 'NotSoSecurePa$$':
-        response.headers['Content-Type'] = 'application/json; charset=UTF-8'
-        json_compatible_item_data = jsonable_encoder({'token': 'token_value'})
-        return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_201_CREATED)
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
+async def login_token(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+    check_credentials(credentials)
+    response.headers['Content-Type'] = 'application/json; charset=UTF-8'
+    json_compatible_item_data = jsonable_encoder({'token': app.token})
+    return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_201_CREATED)
