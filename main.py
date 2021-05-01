@@ -1,21 +1,22 @@
 import datetime
 from hashlib import sha256, sha512
-from fastapi import Cookie, FastAPI, Request, Response, status, HTTPException
+from fastapi import Cookie, Depends, FastAPI, Request, Response, status, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from models.Patient import Patient
 from typing import Dict
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import secrets
 
 
 app = FastAPI()
+security = HTTPBasic()
 templates = Jinja2Templates(directory='templates')
 
 # ----------------------------- session variables -----------------------------
 app.counter: int = 1
 app.storage: Dict[int, Patient] = {}
-app.session_token: str = None
-app.token: str = None
 app.secret_key: str = 'B9BB2B844D23372A5CEF5F5C1DEC7'
 
 # ----------------------------- 1_D_jak_deploy -----------------------------
@@ -83,18 +84,22 @@ async def hello_today_date(response: Response, request: Request):
     })
 
 
-@app.post('/login_session')
-async def login_session(response: Response, login: str = '', password: str = ''):
-    if login == '4dm1n' and password == 'NotSoSecurePa$$':
-        session_token = sha256(f"{login}{password}{app.secret_key}".encode()).hexdigest()
-        response.status_code = status.HTTP_201_CREATED
-        response.set_cookie(key='session_token', value=session_token)
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
+def check_credentials(credentials: HTTPBasicCredentials):
+    correct_username = secrets.compare_digest(credentials.username, '4dm1n')
+    correct_password = secrets.compare_digest(credentials.password, 'NotSoSecurePa$$')
+    if not (correct_username and correct_password):
+        raise HTTPBasicCredentials(status.HTTP_401_UNAUTHORIZED)
+
+
+@app.post('/login_session/')
+async def login_session(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+    check_credentials(credentials)
+    response.status_code = status.HTTP_201_CREATED
+    response.set_cookie('session_token', 'eyJhbGciOiJIUzI1NiIsIndQssw5c')
 
 
 @app.post('/login_token')
-async def login_token(response: Response, login: str = '', password: str = ''):
+async def login_token(response: Response, login: str = '', password: str = '', session_token: str = Cookie(None)):
     if login == '4dm1n' and password == 'NotSoSecurePa$$':
         response.headers['Content-Type'] = 'application/json; charset=UTF-8'
         json_compatible_item_data = jsonable_encoder({'token': 'token_value'})
