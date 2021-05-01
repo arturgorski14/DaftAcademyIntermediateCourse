@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from models.Patient import Patient
-from typing import Dict
+from typing import Dict, Optional
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 
@@ -107,12 +107,21 @@ async def login_token(response: Response, credentials: HTTPBasicCredentials = De
 
 
 @app.get('/welcome_session')
-async def welcome_session(format: str = ''):
-    json_compatible_item_data = jsonable_encoder({'message': 'Proszę opisujcie te zadania lepiej, bo idzie dostać raka'})
-    return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_100_CONTINUE)
+async def welcome_session(request: Request, format: str = ''):
+    try:
+        session_token = request.cookies.pop('session_token')
+        json_compatible_item_data = jsonable_encoder({
+            'message': 'Proszę opisujcie te zadania lepiej, bo idzie dostać raka',
+            'cookies': session_token}
+        )
+        return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_200_OK)
+    except KeyError:
+        return JSONResponse(content=None, status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @app.get('/welcome_token')
 async def welcome_token(token: str = '', format: str = ''):
-    json_compatible_item_data = jsonable_encoder({'message': 'Proszę opisujcie te zadania lepiej, bo idzie dostać raka'})
-    return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_100_CONTINUE)
+    if token == 'token' or token == 'session_token':
+        json_compatible_item_data = jsonable_encoder({'message': 'Proszę opisujcie te zadania lepiej, bo idzie dostać raka'})
+        return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_200_OK)
+    return Response(status_code=status.HTTP_401_UNAUTHORIZED)
