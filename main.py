@@ -103,4 +103,4 @@ async def login_token(response: Response, credentials: HTTPBasicCredentials = De
     response.status_code = check_credentials_and_return_status_code(credentials)
     response.headers['Content-Type'] = 'application/json; charset=UTF-8'
     json_compatible_item_data = jsonable_encoder({'token': app.token})
-    return JSONResponse(content=json_compatible_item_data)
+    return JSONResponse(content=json_compatible_item_data, status_code=response.status_code)
