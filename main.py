@@ -1,6 +1,6 @@
 import datetime
-import hashlib
-from fastapi import FastAPI, Request, Response, status, HTTPException
+from hashlib import sha256, sha512
+from fastapi import Cookie, FastAPI, Request, Response, status, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -11,11 +11,14 @@ from typing import Dict
 app = FastAPI()
 templates = Jinja2Templates(directory='templates')
 
-# ----------------------------- 1_D_jak_deploy -----------------------------
+# ----------------------------- session variables -----------------------------
 app.counter: int = 1
 app.storage: Dict[int, Patient] = {}
+app.session_token: str = None
+app.token: str = None
+app.secret_key: str = 'B9BB2B844D23372A5CEF5F5C1DEC7'
 
-
+# ----------------------------- 1_D_jak_deploy -----------------------------
 @app.get("/")
 async def root() -> Dict:
     """Return dict with HelloWorld message."""
@@ -40,7 +43,7 @@ async def auth(password: str = '', password_hash: str = '') -> Response:
     """Check whether provided password and password_hash match; if so returns 204, otherwise 401."""
     authorized = False
     if password and password_hash:
-        phash = hashlib.sha512(bytes(password, "utf-8")).hexdigest()
+        phash = sha512(bytes(password, "utf-8")).hexdigest()
         authorized = phash == password_hash
 
     if authorized:
@@ -83,8 +86,9 @@ async def hello_today_date(response: Response, request: Request):
 @app.post('/login_session')
 async def login_session(response: Response, login: str = '', password: str = ''):
     if login == '4dm1n' and password == 'NotSoSecurePa$$':
+        session_token = sha256(f"{login}{password}{app.secret_key}".encode()).hexdigest()
         response.status_code = status.HTTP_201_CREATED
-        response.set_cookie(key='session_token', value='session_token_value')
+        response.set_cookie(key='session_token', value=session_token)
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
 
