@@ -84,23 +84,23 @@ async def hello_today_date(response: Response, request: Request):
     })
 
 
-def check_credentials(credentials: HTTPBasicCredentials):
+def check_credentials_and_return_status_code(credentials: HTTPBasicCredentials):
     correct_username = secrets.compare_digest(credentials.username, '4dm1n')
     correct_password = secrets.compare_digest(credentials.password, 'NotSoSecurePa$$')
     if not (correct_username and correct_password):
-        raise HTTPBasicCredentials(status.HTTP_401_UNAUTHORIZED)
+        return status.HTTP_401_UNAUTHORIZED
+    return status.HTTP_201_CREATED
 
 
 @app.post('/login_session/')
 async def login_session(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-    check_credentials(credentials)
-    response.status_code = status.HTTP_201_CREATED
+    response.status_code = check_credentials_and_return_status_code(credentials)
     response.set_cookie('session_token', app.token)
 
 
 @app.post('/login_token')
 async def login_token(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-    check_credentials(credentials)
+    response.status_code = check_credentials_and_return_status_code(credentials)
     response.headers['Content-Type'] = 'application/json; charset=UTF-8'
     json_compatible_item_data = jsonable_encoder({'token': app.token})
-    return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_201_CREATED)
+    return JSONResponse(content=json_compatible_item_data)
