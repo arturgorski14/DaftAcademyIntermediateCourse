@@ -17,7 +17,7 @@ templates = Jinja2Templates(directory='templates')
 # ----------------------------- session variables -----------------------------
 app.counter: int = 1
 app.storage: Dict[int, Patient] = {}
-app.token: str = 'B9BB2B844D23372A5CEF5F5C1DEC7'
+# app.token: str = 'B9BB2B844D23372A5CEF5F5C1DEC7'
 
 # ----------------------------- 1_D_jak_deploy -----------------------------
 @app.get("/")
@@ -95,15 +95,16 @@ def check_credentials_and_return_status_code(credentials: HTTPBasicCredentials):
 @app.post('/login_session/')
 async def login_session(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     response.status_code = check_credentials_and_return_status_code(credentials)
-    response.set_cookie('session_token', app.token)
+    response.set_cookie('session_token', 'apptoken')
 
 
 @app.post('/login_token')
-async def login_token(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+async def login_token(credentials: HTTPBasicCredentials = Depends(security)):
+    response = JSONResponse()
+    response.content = {'token': 'apptoken'}
     response.status_code = check_credentials_and_return_status_code(credentials)
-    response.headers['Content-Type'] = 'application/json; charset=UTF-8'
-    json_compatible_item_data = jsonable_encoder({'token': app.token})
-    return JSONResponse(content=json_compatible_item_data, status_code=response.status_code)
+    response.set_cookie('token', 'apptoken')
+    return response
 
 
 def set_response_based_on_format(format: str) -> Response:
@@ -116,14 +117,18 @@ def set_response_based_on_format(format: str) -> Response:
 @app.get('/welcome_session')
 async def welcome_session(request: Request, format: str = ''):
     try:
-        _ = request.cookies.pop('session_token')
+        if not request.cookies.get('session_token'):
+            raise KeyError
         return set_response_based_on_format(format)
     except KeyError:
-        return Response(content=None, status_code=status.HTTP_401_UNAUTHORIZED)
+        return PlainTextResponse('Welcome!', status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @app.get('/welcome_token')
-async def welcome_token(token: str = '', format: str = ''):
-    if 'token' in token:
+async def welcome_token(request: Request, token: str = '', format: str = ''):
+    try:
+        if request.cookies.get('token') != token:
+            raise KeyError
         return set_response_based_on_format(format)
-    return Response(status_code=status.HTTP_401_UNAUTHORIZED)
+    except KeyError:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
