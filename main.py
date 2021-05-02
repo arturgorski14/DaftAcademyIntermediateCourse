@@ -2,10 +2,10 @@ import datetime
 from hashlib import sha256, sha512
 from fastapi import Cookie, Depends, FastAPI, Request, Response, status, HTTPException
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
 from models.Patient import Patient
-from typing import Dict
+from typing import Dict, Optional
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 
@@ -106,13 +106,24 @@ async def login_token(response: Response, credentials: HTTPBasicCredentials = De
     return JSONResponse(content=json_compatible_item_data, status_code=response.status_code)
 
 
+def set_response_based_on_format(format: str) -> Response:
+    sc = status.HTTP_200_OK
+    responses = {'json': JSONResponse({"message": "Welcome!"}, status_code=sc),
+                 'html': HTMLResponse('<h1>Welcome!</h1>', status_code=sc)}
+    return responses[format] if format in responses else PlainTextResponse('Welcome!', status_code=sc)
+
+
 @app.get('/welcome_session')
-async def welcome_session(format: str = ''):
-    json_compatible_item_data = jsonable_encoder({'message': 'Proszę opisujcie te zadania lepiej, bo idzie dostać raka'})
-    return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_100_CONTINUE)
+async def welcome_session(request: Request, format: str = ''):
+    try:
+        _ = request.cookies.pop('session_token')
+        return set_response_based_on_format(format)
+    except KeyError:
+        return Response(content=None, status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @app.get('/welcome_token')
 async def welcome_token(token: str = '', format: str = ''):
-    json_compatible_item_data = jsonable_encoder({'message': 'Proszę opisujcie te zadania lepiej, bo idzie dostać raka'})
-    return JSONResponse(content=json_compatible_item_data, status_code=status.HTTP_100_CONTINUE)
+    if 'token' in token:
+        return set_response_based_on_format(format)
+    return Response(status_code=status.HTTP_401_UNAUTHORIZED)
