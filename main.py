@@ -114,6 +114,13 @@ def set_response_based_on_format(format: str) -> Response:
     return responses[format] if format in responses else PlainTextResponse('Welcome!', status_code=sc)
 
 
+def set_response_based_on_format(format: str) -> Response:
+    sc = status.HTTP_200_OK
+    responses = {'json': JSONResponse({"message": "Welcome!"}, status_code=sc),
+                 'html': HTMLResponse('<h1>Welcome!</h1>', status_code=sc)}
+    return responses[format] if format in responses else PlainTextResponse('Welcome!', status_code=sc)
+
+
 @app.get('/welcome_session')
 async def welcome_session(request: Request, format: str = ''):
     try:
