@@ -147,6 +147,21 @@ async def welcome_token(request: Request, token: str = '', format: str = ''):
         return Response(status_code=status.HTTP_401_UNAUTHORIZED)
 
 # ----------------------------- 4_T_jak_tabela -----------------------------
+@app.get('/customers', tags=['fourth_lecture'])
+async def customers() -> Dict:
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute('''
+        SELECT CustomerID, CompanyName, Address, PostalCode, City, Country
+        FROM CUSTOMERS
+        ORDER BY CustomerID
+    ''').fetchall()
+    return {'brrr': [{
+        "id": x['CustomerID'],
+        "name": x["CompanyName"],
+        "full_address": f"{x['Address']} {x['PostalCode']} {x['City']} {x['Country']}"
+        } for x in data]}
+
+
 @app.get('/categories', tags=['fourth_lecture'])
 async def categories():
     app.db_connection.row_factory = sqlite3.Row
@@ -155,7 +170,7 @@ async def categories():
         FROM Categories
         ORDER BY CategoryID
     ''').fetchall()
-    return {'categories': data}
+    return {'brrr': data}
 
 
 @app.post('/categories', tags=['fourth_lecture'])
@@ -199,21 +214,6 @@ async def categories(category_id: int):
         ''', {'category_id': category_id}).fetchone()
     app.db_connection.commit()
     return {'deleted': 1}
-
-
-@app.get('/customers', tags=['fourth_lecture'])
-async def customers() -> Dict:
-    app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''
-        SELECT CustomerID, CompanyName, Address, PostalCode, City, Country
-        FROM CUSTOMERS
-        ORDER BY CustomerID
-    ''').fetchall()
-    return {'customers': [{
-        "id": x['CustomerID'],
-        "name": x["CompanyName"],
-        "full_address": f"{x['Address']} {x['PostalCode']} {x['City']} {x['Country']}"
-    } for x in data]}
 
 
 @app.get('/products/{product_id}', tags=['fourth_lecture'])
