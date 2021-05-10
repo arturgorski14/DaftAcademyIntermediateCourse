@@ -2,7 +2,7 @@ import datetime
 import secrets
 import sqlite3
 from hashlib import sha256, sha512
-from typing import Dict, Optional
+from typing import Dict
 
 from fastapi import (Cookie, Depends, FastAPI, HTTPException, Request,
                      Response, status)
@@ -160,7 +160,7 @@ async def categories():
 
 
 @app.get('/customers', tags=['fourth_lecture'])
-async def customers():
+async def customers() -> Dict:
     app.db_connection.row_factory = sqlite3.Row
     data = app.db_connection.execute('''
         SELECT CustomerID, CompanyName, Address, PostalCode, City, Country
@@ -175,7 +175,7 @@ async def customers():
 
 
 @app.get('/products/{product_id}', tags=['fourth_lecture'])
-async def products(product_id: int, response: Response):
+async def products(product_id: int) -> Dict:
     try:
         app.db_connection.row_factory = sqlite3.Row
         data = app.db_connection.execute(
@@ -186,3 +186,30 @@ async def products(product_id: int, response: Response):
         return data
     except ValueError:
         raise HTTPException(status_code=404, detail=f"Product with given id: {product_id} Not Found")
+
+
+@app.get('/employees', tags=['fourth_lecture'])
+async def employees(limit: int = 0, offset: int = 0, order: str = '') -> Dict:
+    order_dict = {'first_name': 'FirstName', 'last_name': 'LastName', 'city': 'City'}
+    try:
+        if offset < 0 or limit < 0 or (offset and not limit):
+            raise ValueError()
+        if order:
+            if order not in order_dict:
+                raise ValueError()
+        else:
+            order = 'default'
+            order_dict['default'] = 'EmployeeID'
+
+        query = f'''SELECT EmployeeID, FirstName, LastName, City
+        FROM EMPLOYEES
+        ORDER BY {order_dict[order]}
+        {f"LIMIT {limit}" if limit > 0 else ""}
+        {f"OFFSET {offset}" if offset > 0 else ""}'''
+        print(query)
+
+        app.db_connection.row_factory = sqlite3.Row
+        data = app.db_connection.execute(query).fetchall()
+        return data
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Bad Request, check query parameters")
