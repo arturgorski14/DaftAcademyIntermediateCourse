@@ -5,7 +5,6 @@ from utils.decorators import get_names_surname, sentence, first_func, second_fun
 @pytest.mark.parametrize('names_surname', [
     'hello', 'janko janeczko', 'ed edd eddy', '1234', 'anna kowalska', 'janek kos', 'jan sebastian bach'
 ])
-
 def test_greetings(names_surname: str) -> None:
     assert f'Hello {names_surname.title()}' == get_names_surname(names_surname)
 
