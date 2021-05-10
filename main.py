@@ -179,7 +179,7 @@ async def products(product_id: int, response: Response):
     try:
         app.db_connection.row_factory = sqlite3.Row
         data = app.db_connection.execute(
-            "SELECT ProductID, ProductName FROM Products WHERE ProductID = :product_id",
+            "SELECT ProductID id, ProductName name FROM Products WHERE ProductID = :product_id",
             {'product_id': product_id}).fetchone()
         if not data:
             raise ValueError()
