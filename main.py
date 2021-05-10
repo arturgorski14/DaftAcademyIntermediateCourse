@@ -241,6 +241,6 @@ async def product_id_orders(product_id: int):
             JOIN Customers c ON o.CustomerID = c.CustomerID
             WHERE ProductID = :product_id"
         ''', {'product_id': product_id}).fetchall()
-        return {'details': data}
+        return {'detail': data}
     except:
-        raise HTTPException(status_code=404, detail=f"Product with given id: {product_id} Not Found")
+        raise HTTPException(status_code=404, detail=f"Product id: {product_id} Not Found")
