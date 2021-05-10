@@ -6,14 +6,13 @@ from typing import Dict
 
 from fastapi import (Cookie, Depends, FastAPI, HTTPException, Request,
                      Response, status)
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
 from utils import tags_metadata
 
 from models.Patient import Patient
+from models.Name import Name
 
 # ----------------------------- startup -----------------------------
 
@@ -152,15 +151,57 @@ async def welcome_token(request: Request, token: str = '', format: str = ''):
 async def categories():
     app.db_connection.row_factory = sqlite3.Row
     data = app.db_connection.execute('''
-        SELECT CategoryID, CategoryName
+        SELECT CategoryID id, CategoryName name
         FROM Categories
         ORDER BY CategoryID
     ''').fetchall()
-    return {'categories': [{"id": x['CategoryID'], "name": x["CategoryName"]} for x in data]}
+    return {'categories': data}
 
 
-# @app.post('/categories', tags=['fourth_lecture'])
-# # async def categories():
+@app.post('/categories', tags=['fourth_lecture'])
+async def categories(name: Name):
+    cursor = app.db_connection.execute(
+        f"INSERT INTO Categories (CategoryName) VALUES ('{name.name}')"
+    )
+    app.db_connection.commit()
+    return {
+        "id": cursor.lastrowid,
+        "name": name.name
+    }
+
+
+@app.put('/categories/{category_id}', tags=['fourth_lecture'])
+async def categories(name: Name, category_id: int):
+    cursor = app.db_connection.cursor()
+    data = cursor.execute('''
+        SELECT CategoryID FROM Categories WHERE CategoryID = :category_id
+    ''', {'category_id': category_id}).fetchone()
+
+    if not data:
+        raise HTTPException(404, f"Category id: {category_id} Not Found")
+    cursor = app.db_connection.cursor()
+    cursor.execute('''
+            UPDATE Categories SET CategoryName = :name WHERE CategoryID = :category_id
+        ''', {'category_id': category_id, 'name': name.name})
+    app.db_connection.commit()
+    return {'id': category_id, 'name': name.name}
+
+
+@app.delete('/categories/{category_id}', tags=['fourth_lecture'])
+async def categories(category_id: int):
+    cursor = app.db_connection.cursor()
+    data = cursor.execute('''
+        SELECT CategoryID FROM Categories WHERE CategoryID = :category_id
+    ''', {'category_id': category_id}).fetchone()
+
+    if not data:
+        raise HTTPException(404, f"Category id: {category_id} Not Found")
+    cursor = app.db_connection.cursor()
+    cursor.execute('''
+            DELETE FROM Categories WHERE CategoryID = :category_id
+        ''', {'category_id': category_id}).fetchone()
+    app.db_connection.commit()
+    return {'deleted': 1}
 
 
 @app.get('/customers', tags=['fourth_lecture'])
