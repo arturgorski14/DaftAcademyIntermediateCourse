@@ -239,8 +239,10 @@ async def product_id_orders(product_id: int):
             ROUND((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)), 2) AS total_price
             FROM Orders o JOIN [Order Details] od ON o.OrderID = od.OrderID
             JOIN Customers c ON o.CustomerID = c.CustomerID
-            WHERE ProductID = :product_id"
+            WHERE od.ProductID = :product_id
         ''', {'product_id': product_id}).fetchall()
-        return {'detail': data}
-    except:
+        if not data:
+            raise ValueError()
+        return {'orders': data}
+    except ValueError:
         raise HTTPException(status_code=404, detail=f"Product id: {product_id} Not Found")
