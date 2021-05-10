@@ -164,10 +164,7 @@ async def categories(name: Name):
         f"INSERT INTO Categories (CategoryName) VALUES ('{name.name}')"
     )
     app.db_connection.commit()
-    return {
-        "id": cursor.lastrowid,
-        "name": name.name
-    }
+    return JSONResponse({"id": cursor.lastrowid, "name": name.name}, status_code=status.HTTP_201_CREATED)
 
 
 @app.put('/categories/{category_id}', tags=['fourth_lecture'])
