@@ -159,6 +159,10 @@ async def categories():
     return {'categories': [{"id": x['CategoryID'], "name": x["CategoryName"]} for x in data]}
 
 
+# @app.post('/categories', tags=['fourth_lecture'])
+# # async def categories():
+
+
 @app.get('/customers', tags=['fourth_lecture'])
 async def customers() -> Dict:
     app.db_connection.row_factory = sqlite3.Row
@@ -225,14 +229,18 @@ async def products_extended():
     ''').fetchall()
     return {'products_extended': data}
 
+
 @app.get('/products/{product_id}/orders', tags=['fourth_lecture'])
 async def product_id_orders(product_id: int):
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''
-        SELECT o.OrderID id, c.CompanyName customer, od.Quantity quantity,
-        ROUND((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)), 2) AS total_price
-        FROM Orders o JOIN [Order Details] od ON o.OrderID = od.OrderID
-        JOIN Customers c ON o.CustomerID = c.CustomerID
-    ''').fetchall()
-    return {'products_extended': data}
-
+    try:
+        data = app.db_connection.execute('''
+            SELECT o.OrderID id, c.CompanyName customer, od.Quantity quantity,
+            ROUND((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)), 2) AS total_price
+            FROM Orders o JOIN [Order Details] od ON o.OrderID = od.OrderID
+            JOIN Customers c ON o.CustomerID = c.CustomerID
+            WHERE ProductID = :product_id"
+        ''', {'product_id': product_id}).fetchall()
+        return {'orders': data}
+    except:
+        raise HTTPException(status_code=404, detail=f"Product with given id: {product_id} Not Found")
