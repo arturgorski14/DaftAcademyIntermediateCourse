@@ -222,4 +222,4 @@ async def products_extended():
         FROM Products p JOIN Categories c ON p.CategoryID = c.CategoryID
         JOIN Suppliers s ON p.SupplierID = s.SupplierID
     ''').fetchall()
-    return data
+    return {'products_extended': data}
