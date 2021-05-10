@@ -221,5 +221,18 @@ async def products_extended():
         SELECT p.ProductID id, p.ProductName name, c.CategoryName category, s.CompanyName supplier
         FROM Products p JOIN Categories c ON p.CategoryID = c.CategoryID
         JOIN Suppliers s ON p.SupplierID = s.SupplierID
+        ORDER BY id
     ''').fetchall()
     return {'products_extended': data}
+
+@app.get('/products/{product_id}/orders', tags=['fourth_lecture'])
+async def product_id_orders(product_id: int):
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute('''
+        SELECT o.OrderID id, c.CompanyName customer, od.Quantity quantity,
+        ROUND((od.UnitPrice * od.Quantity) - (od.Discount * (od.UnitPrice * od.Quantity)), 2) AS total_price
+        FROM Orders o JOIN [Order Details] od ON o.OrderID = od.OrderID
+        JOIN Customers c ON o.CustomerID = c.CustomerID
+    ''').fetchall()
+    return {'products_extended': data}
+
