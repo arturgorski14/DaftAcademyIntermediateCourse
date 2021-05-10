@@ -201,15 +201,14 @@ async def employees(limit: int = 0, offset: int = 0, order: str = '') -> Dict:
             order = 'default'
             order_dict['default'] = 'EmployeeID'
 
-        query = f'''SELECT EmployeeID, FirstName, LastName, City
+        query = f'''SELECT EmployeeID id, LastName last_name, FirstName first_name, City city
         FROM EMPLOYEES
         ORDER BY {order_dict[order]}
         {f"LIMIT {limit}" if limit > 0 else ""}
         {f"OFFSET {offset}" if offset > 0 else ""}'''
-        print(query)
 
         app.db_connection.row_factory = sqlite3.Row
         data = app.db_connection.execute(query).fetchall()
-        return data
+        return {'employees': data}
     except ValueError:
         raise HTTPException(status_code=400, detail=f"Bad Request, check query parameters")
