@@ -212,3 +212,14 @@ async def employees(limit: int = 0, offset: int = 0, order: str = '') -> Dict:
         return {'employees': data}
     except ValueError:
         raise HTTPException(status_code=400, detail=f"Bad Request, check query parameters")
+
+
+@app.get('/products_extended', tags=['fourth_lecture'])
+async def products_extended():
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute('''
+        SELECT p.ProductID id, p.ProductName name, c.CategoryName category, s.CompanyName supplier
+        FROM Products p JOIN Categories c ON p.CategoryID = c.CategoryID
+        JOIN Suppliers s ON p.SupplierID = s.SupplierID
+    ''').fetchall()
+    return data
