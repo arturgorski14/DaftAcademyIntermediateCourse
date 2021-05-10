@@ -155,11 +155,13 @@ async def customers() -> Dict:
         FROM CUSTOMERS
         ORDER BY CustomerID
     ''').fetchall()
-    return {'brrr': [{
+    d = dict()
+    d['customers'] = [{
         "id": x['CustomerID'],
         "name": x["CompanyName"],
         "full_address": f"{x['Address']} {x['PostalCode']} {x['City']} {x['Country']}"
-        } for x in data]}
+        } for x in data]
+    return {'customers': d['customers']}
 
 
 @app.get('/categories', tags=['fourth_lecture'])
@@ -170,7 +172,7 @@ async def categories():
         FROM Categories
         ORDER BY CategoryID
     ''').fetchall()
-    return {'brrr': data}
+    return {'categories': data}
 
 
 @app.post('/categories', tags=['fourth_lecture'])
