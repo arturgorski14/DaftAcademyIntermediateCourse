@@ -172,3 +172,17 @@ async def customers():
         "name": x["CompanyName"],
         "full_address": f"{x['Address']} {x['PostalCode']} {x['City']} {x['Country']}"
     } for x in data]}
+
+
+@app.get('/products/{product_id}', tags=['fourth_lecture'])
+async def products(product_id: int, response: Response):
+    try:
+        app.db_connection.row_factory = sqlite3.Row
+        data = app.db_connection.execute(
+            "SELECT ProductID, ProductName FROM Products WHERE ProductID = :product_id",
+            {'product_id': product_id}).fetchone()
+        if not data:
+            raise ValueError()
+        return data
+    except ValueError:
+        raise HTTPException(status_code=404, detail=f"Product with given id: {product_id} Not Found")
