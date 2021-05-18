@@ -2,7 +2,7 @@ import datetime
 import secrets
 import sqlite3
 from hashlib import sha256, sha512
-from typing import Dict
+from typing import Dict, List
 
 from fastapi import (Cookie, Depends, FastAPI, HTTPException, Request,
                      Response, status)
@@ -10,6 +10,9 @@ from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from utils import tags_metadata
+from .database import SessionLocal, engine
+from . import crud, models, schemas
+from sqlalchemy.orm import Session
 
 from models.Patient import Patient
 from models.Name import Name
@@ -21,6 +24,15 @@ security = HTTPBasic()
 templates = Jinja2Templates(directory='templates')
 app.counter: int = 1
 app.storage: Dict[int, Patient] = {}
+
+
+# Dependency
+def get_db():
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
 
 
 @app.on_event("startup")
@@ -286,3 +298,13 @@ async def product_id_orders(product_id: int):
         return {'orders': data}
     except ValueError:
         raise HTTPException(status_code=404, detail=f"Product id: {product_id} Not Found")
+
+# ----------------------------- 5_O_jak_ORM -----------------------------
+@app.get('/suppliers', response_model=List[schemas.Supplier])
+async def get_suppliers(db: Session = Depends(get_db)):
+    return crud.get_suppliers(db)
+
+
+@app.get('/supplier/{supplier_id}', response_model=schemas.Supplier)
+async def get_suppliers(supplier_id: int, db: Session = Depends(get_db)):
+    return crud.get_supplier(db, supplier_id)
